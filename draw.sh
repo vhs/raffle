@@ -17,6 +17,7 @@ function hash {
   echo -n $(echo -n "$*" | openssl dgst -binary -sha256 | xxd -c 32 -p)
 }
 
+# credit to colinhb https://stackoverflow.com/a/55986217
 function hexintsplit() {
   echo "${1}" |
     fold -w 16 |
