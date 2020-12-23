@@ -85,7 +85,7 @@ function hexsort() {
 # hash key for this raffle
 KEY=$(hash ${RAFFLE_TIME} ${RAFFLE_NAME} ${RAFFLE_COUNT})
 # the dice hash for this raffle
-DICE=$(hash ${RAFFLE_KEY} ${RAFFLE_DICE} ${RAFFLE_SALT})
+DICE=$(hash ${RAFFLE_DICE} ${RAFFLE_SALT})
 # the roll result of this raffle
 ROLL=$(hash ${KEY} ${DICE})
 # hashes of entrants for this raffle
