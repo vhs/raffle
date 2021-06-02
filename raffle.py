@@ -101,17 +101,17 @@ def get_nist_hash(timestamp):
     return bytes.fromhex(pulse)
 def get_bitcoin_hash(timestamp): # Get list of coins from https://blockchain.info/blocks/[ts_in_ms]?format=json
     try:
-        blocks = requests.get('https://blockchain.info/blocks/'+str(timestamp*1000), params={'format':'json'}).json()['blocks']
+        print('https://blockchain.info/blocks/'+str((timestamp+1000)*1000))
+        blocks = requests.get('https://blockchain.info/blocks/'+str((timestamp+1000)*1000), params={'format':'json'}).json()
+
     except:
         err("Bitcoin get error")
         raise
-    closest=None
+    #just_block_times=[ sub['time'] for sub in blocks ]
     for i in blocks:
-        if i['main_chain']==False:
-            continue
-        if i['time'] > timestamp:
-            break
         closest=i
+        if i['time'] < timestamp:
+            break
     return bytes.fromhex(closest['hash'])
 
 from pydiscourse import DiscourseClient
