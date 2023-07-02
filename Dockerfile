@@ -1,5 +1,13 @@
-FROM ubuntu:latest
+FROM python:3-alpine 
+#o r maybe use slim?
 
-ADD draw.sh .
+WORKDIR /usr/src/app 
+# Python recommends.. Don't like this place.
 
-ENTRYPOINT ["./draw.sh"]
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD [ "python", "./raffle.py"]
