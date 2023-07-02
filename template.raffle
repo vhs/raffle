@@ -1,9 +1,0 @@
-export RAFFLE_TIME=""
-export RAFFLE_NAME=""
-export RAFFLE_COUNT=""
-export RAFFLE_DICE=""
-export RAFFLE_SALT=""
-export ENTRANTS=$(cat <<EOF
-
-EOF
-);
