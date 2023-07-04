@@ -20,7 +20,7 @@ class DiscouseConnection:
         results=[]
         i=1
         page = self._discource_client._request("GET","/polls/voters.json",
-            params={"post_id":post_id,"poll_name":poll_name,"option_id":option_id, 
+            params={"post_id":post_id,"poll_name":poll_name,"option_id":option_id,
             "page":i})['voters'][option_id] # Hacky way to get voters directly
         results+=page
         i+=1
@@ -30,7 +30,7 @@ class DiscouseConnection:
                 "page":i})['voters'][option_id]
             results+=page
             i+=1
-        # Ugh that (^^^) was a lame way of doing this, I was tired, 
+        # Ugh that (^^^) was a lame way of doing this, I was tired,
         # TODO: Make this cooler/cleaner for pagination and the actual request
         return [voter['username'] for voter in results] # Get just the usernames
 

@@ -13,7 +13,6 @@ deb=l.debug
 info=l.info
 warn=l.warn
 err=l.error
-parser,args=None,None
 
 def main():
     parser = argparse.ArgumentParser(description='Run raffels for VHS. Randomness from Bitcoin and NIST')
@@ -51,7 +50,7 @@ def main():
 
     os.environ['TZ'] = 'US/Pacific' # Screw it, let's just be west coast centric.
     time.tzset()
-    discouse_connection=libs.discourse_helper.discouse_connection(args.url, discord_api_key)
+    discouse_connection=libs.discourse_helper.DiscouseConnection(args.url, discord_api_key)
 
     for item in discouse_connection.get_all_polls(args.post_id):
         print(f"{'=' * 20} {item['description']} {'=' * 20}")
