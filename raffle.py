@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import time
+import argparse
+import os
 import logging
 import libs.crypto_helper,libs.discourse_helper
-from datetime import datetime
-import argparse, os
 
 ### Logging config
 logging.basicConfig(format='%(levelname)s:%(message)s')
@@ -38,18 +38,18 @@ def main():
     l.setLevel([logging.WARNING, logging.INFO, logging.DEBUG][min(3-1,args.verbosity)])
     if args.api_key and args.api_key_file:
         err("API key specified too many ways. Please only use one")
-        exit(parser.print_usage()) 
+        exit(parser.print_usage())
     if not (args.api_key or args.api_key_file):
         err("No API Key found. Must be environmental variable or specified as command line argument via --api_key or --api-key-file")
         exit(parser.print_usage())
     discord_api_key=None
     if args.api_key_file:
-        with open(args.api_key_file) as key_file:
+        with open(args.api_key_file,encoding='UTF-8') as key_file:
             discord_api_key=key_file.read().strip()
     else:
         discord_api_key=args.api_key
- 
-    os.environ['TZ'] = 'US/Pacific' # Screw it, let's just be west coast centric. 
+
+    os.environ['TZ'] = 'US/Pacific' # Screw it, let's just be west coast centric.
     time.tzset()
     discouse_connection=libs.discourse_helper.discouse_connection(args.url, discord_api_key)
 
@@ -82,7 +82,6 @@ def main():
         else:
             print("This poll has not closed yet")
         print("\n\n",end="")
-    
 
 if __name__ == "__main__":
     main()
