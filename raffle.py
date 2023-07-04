@@ -67,7 +67,7 @@ def main():
     )
     args = parser.parse_args()
     # Set logging according to verbosity in args
-    l.setLevel(
+    logger.setLevel(
         [logging.WARNING, logging.INFO, logging.DEBUG][min(3 - 1, args.verbosity)]
     )
     if args.api_key and args.api_key_file:
