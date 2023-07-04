@@ -1,4 +1,14 @@
+from functools import cache
 import hashlib
+import requests
+
+import logging
+l = logging.getLogger()
+deb=l.debug
+info=l.info
+warn=l.warn
+err=l.error
+parser,args=None,None
 def get_hash(string):
     assert type(string)==str
     return hashlib.sha256(string.encode()).digest() # Specify hash algorithm used through script
@@ -14,6 +24,7 @@ def get_winning_order(key_hash,dice_hash,entrants_list): # Generate a sorted lis
     assert type(entrants_list) == list
     # TODO: refactor next line for readability as per Mike Kes
     return sorted([(name, hash_xor(digest,get_hash(key_hash.hex()+" "+dice_hash.hex()))) for name, digest in get_user_hashes(key_hash,entrants_list)],key=lambda x: x[1])
+@cache
 def get_nist_hash(timestamp):
     nist_url='https://beacon.nist.gov/beacon/2.0/pulse/time/'+str(timestamp)
     deb(nist_url)
@@ -23,6 +34,7 @@ def get_nist_hash(timestamp):
         err("NIST Pulse get error")
         raise
     return bytes.fromhex(pulse)
+@cache
 def get_bitcoin_hash(timestamp): # Get list of coins from https://blockchain.info/blocks/[ts_in_ms]?format=json
     try:
         #print('https://blockchain.info/blocks/'+str((timestamp+1000)*1000))
