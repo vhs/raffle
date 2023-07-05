@@ -2,3 +2,5 @@
 requests
 # We use this to talk to discourse
 pydiscourse
+# Because dates are hard and this makes it a bit easier.
+pip install python-dateutil

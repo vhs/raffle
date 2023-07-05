@@ -10,9 +10,9 @@ err = logger.error
 
 
 class DiscouseConnection:
-    def __init__(self, url, discord_api_key) -> None:
+    def __init__(self, url, discord_api_key, api_username="system") -> None:
         self._discource_client = DiscourseClient(
-            url, api_username="system", api_key=discord_api_key
+            url, api_username=api_username, api_key=discord_api_key
         )
 
     def get_all_voters(self, post_id, poll_name, option_id):
@@ -47,7 +47,7 @@ class DiscouseConnection:
             i += 1
         # Ugh that (^^^) was a lame way of doing this, I was tired,
         # TODO: Make this cooler/cleaner for pagination and the actual request
-        return [voter["username"] for voter in results]  # Get just the usernames
+        return results
 
     def get_all_polls(self, post_id, close_time_override=None):
         assert isinstance(post_id, int)
@@ -73,10 +73,11 @@ class DiscouseConnection:
                             )
                         except:
                             err(
-                                "Problem with close time for poll. Close time is used for hash generation and is needed. You can specify from command line if needed"
+                                "Problem with close time for poll. Close time is used for hash generation and is needed. \
+                                    You can specify from command line if needed"
                             )
                             exit()
-                    winnable_item["voters"] = self.get_all_voters(
+                    winnable_item["entrants"] = self.get_all_voters(
                         post["id"], poll["name"], item["id"]
                     )
                     all_poll_items.append(winnable_item)
