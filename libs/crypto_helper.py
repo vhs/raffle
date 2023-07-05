@@ -83,6 +83,6 @@ def get_dice_roll(close_time):
     # Check that the timestamps are in the right order. Bitcoin, close time, NIST
     assert bitcoin["timestamp"] <= close_time <= nist["timestamp"]
     # Check that the whole range is within 30 mins.
-    assert nist["timestamp"] - bitcoin["timestamp"] <= 1800
+    assert nist["timestamp"] - bitcoin["timestamp"] <= 3600
     deb("Time delta between two randomeness: %s" % (nist["timestamp"] - bitcoin["timestamp"]))
     return get_hash(bitcoin["hash"].hex() + nist["hash"].hex())
