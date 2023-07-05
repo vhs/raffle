@@ -45,7 +45,7 @@ def get_nist_hash(timestamp):
     deb("Chosen NIST: %s" % pulse)
     pulse_output = bytes.fromhex(pulse["pulse"]["outputValue"])
     pulse_timestamp = dateutil.parser.isoparse(pulse["pulse"]["timeStamp"]).timestamp()
-    return {"hash": pulse_output, "timestamp": pulse_timestamp}
+    return {"hash": pulse_output, "timestamp": int(pulse_timestamp)}
 
 
 # Cache decorator here get's python to just handle caching calls to remote service
@@ -80,4 +80,9 @@ def get_dice_roll(close_time):
     info("Bitcoin Timestamp: %s" % time.ctime(bitcoin["timestamp"]))
     info("Provided Timestamp: %s" % time.ctime(close_time))
     info("NIST Timestamp: %s" % time.ctime(nist["timestamp"]))
+    # Check that the timestamps are in the right order. Bitcoin, close time, NIST
+    assert bitcoin["timestamp"] <= close_time <= nist["timestamp"]
+    # Check that the whole range is within 30 mins.
+    assert nist["timestamp"] - bitcoin["timestamp"] <= 1800
+    deb("Time delta between two randomeness: %s" % (nist["timestamp"] - bitcoin["timestamp"]))
     return get_hash(bitcoin["hash"].hex() + nist["hash"].hex())
