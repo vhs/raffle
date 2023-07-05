@@ -2,8 +2,10 @@
 import argparse
 import os
 import logging
+import pickle
+import gzip
+import base64
 import pprint
-import json
 import time
 import libs.crypto_helper, libs.discourse_helper
 
@@ -22,11 +24,11 @@ def parse_args(parser):
         "mode",
         action="store",
         choices=[
-            "rob",
-            "print_all",
-            "print_user_hashes",
-            "print_winners",
-            "post_winners_to_topic",
+            "print-nice",
+            "dump-raw-object",
+            "dump-base64-picked-object",
+            "post-data-to-topic",
+            "post-winners-to-topic",
         ],
         help="What action to take.",
     )
@@ -131,8 +133,8 @@ def main():
                 str(entrant["id"]) + item["item_hash"].hex()
             )
 
-    logic_do_after_poll_tasks = True
-    if logic_do_after_poll_tasks:
+    poll_closed = time.time() > item["close_time"]
+    if poll_closed:
         for item in all_items:
             item["dice_roll_hash"] = libs.crypto_helper.get_dice_roll(item["close_time"])
             for entrant in item['entrants']:
@@ -146,21 +148,28 @@ def main():
             # Next we sort that list by the result of the xor, which is stored in each user (unique list per item)
             item['sorted_winner_list'] = sorted(
                 temp_list_of_entrants_with_fewer_keys, key=lambda x: x["user-item-dice-result"]
-            )            
-            
+            )
 
-
-    if args.mode=='rob':
-        for item in all_items:
-            print(f"{'=' * 20} {item['description']} {'=' * 20}")
-            print(f"Close time: {item['close_time']} - {time.ctime(item['close_time'])}")
-            print()
-            print("Winners, in order, are:")
-            for i, entrant in enumerate(item['sorted_winner_list']):
-                print(f"    {i+1} - {entrant['username']} - {entrant['name']} - {int.from_bytes(entrant['user-item-dice-result'],'little')}")
-            print()
-            print()
-
-
+    match args.mode:
+        case 'print-nice':
+            output=''
+            for item in all_items:
+                output+=f"**{item['description']}**\n\n"
+                output+="Entrants: \n"
+                for i,entrant in enumerate(item['entrants']):
+                    output+=f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
+                output+="Winning Order: \n"
+                for i,entrant in enumerate(item['sorted_winner_list']):
+                    output+=f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
+                output+='\n\n'
+            print(output)
+        case 'dump-raw-object':
+            pprint.pprint(all_items)
+        case 'dump-base64-picked-object':
+            print(base64.b64encode(gzip.compress(pickle.dumps(all_items))).decode())
+        case 'post-data-to-topic':
+            discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_data(all_items))
+        case 'post-winners-to-topic':
+            discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
 if __name__ == "__main__":
     main()
