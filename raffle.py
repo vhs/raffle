@@ -30,12 +30,12 @@ def parse_args(parser):
             "post-data-to-topic",
             "post-winners-to-topic",
         ],
-        help="What action to take.",
+        help="The action to take.",
     )
     parser.add_argument(
         "topic_id",
         action="store",
-        help="the ID from the URL of the post. EG: 'talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18' the ID is 11292",
+        help="The ID from the URL of the topic. EG: 'talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18' the ID is 11292",
         type=int,
     )
     parser.add_argument(
@@ -158,6 +158,7 @@ def main():
                 output+="Entrants: \n"
                 for i,entrant in enumerate(item['entrants']):
                     output+=f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
+                output+='\n'
                 if time.time() > item['close_time']:
                     output+="Winning Order: \n"
                     for i,entrant in enumerate(item['sorted_winner_list']):
