@@ -133,51 +133,67 @@ def main():
                 str(entrant["id"]) + item["item_hash"].hex()
             )
 
-    for item in filter(lambda x: time.time() > x['close_time'],all_items):
+    for item in filter(lambda x: time.time() > x["close_time"], all_items):
         if time.time() > item["close_time"]:
             # We COULD mix the dice with the item, so each dice roll is different. Not changing now as this is live.
-            item["dice_roll_hash"] = libs.crypto_helper.get_dice_roll(item["close_time"]) 
-            for entrant in item['entrants']:
-                entrant['user-item-dice-result'] = libs.crypto_helper.hash_xor(
+            item["dice_roll_hash"] = libs.crypto_helper.get_dice_roll(
+                item["close_time"]
+            )
+            for entrant in item["entrants"]:
+                entrant["user-item-dice-result"] = libs.crypto_helper.hash_xor(
                     entrant["user-item-hash"], item["dice_roll_hash"]
                 )
             # Did my best to keep the next lines simple, as this is what actually sorts the winners
             # First we create a new list with just the keys we care about
-            temp_list_of_entrants_with_fewer_keys  = [{k: v for k, v in d.items() if k in ['user-item-dice-result','username','name']} for d in item["entrants"]]
+            temp_list_of_entrants_with_fewer_keys = [
+                {
+                    k: v
+                    for k, v in d.items()
+                    if k in ["user-item-dice-result", "username", "name"]
+                }
+                for d in item["entrants"]
+            ]
 
             # Next we sort that list by the result of the xor, which is stored in each user (unique list per item)
-            item['sorted_winner_list'] = sorted(
-                temp_list_of_entrants_with_fewer_keys, key=lambda x: x["user-item-dice-result"]
+            item["sorted_winner_list"] = sorted(
+                temp_list_of_entrants_with_fewer_keys,
+                key=lambda x: x["user-item-dice-result"],
             )
 
     match args.mode:
-        case 'print-nice':
-            output=''
+        case "print-nice":
+            output = ""
             for item in all_items:
-                output+=f"**{item['description']}**\n\n"
-                output+="Entrants: \n"
-                for i,entrant in enumerate(item['entrants']):
-                    output+=f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
-                output+='\n'
-                if time.time() > item['close_time']:
-                    output+="Winning Order: \n"
-                    for i,entrant in enumerate(item['sorted_winner_list']):
-                        output+=f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
+                output += f"**{item['description']}**\n\n"
+                output += "Entrants: \n"
+                for i, entrant in enumerate(item["entrants"]):
+                    output += f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
+                output += "\n"
+                if time.time() > item["close_time"]:
+                    output += "Winning Order: \n"
+                    for i, entrant in enumerate(item["sorted_winner_list"]):
+                        output += f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
                 else:
-                    output+="Poll not yet closed"
-                output+='\n\n'
+                    output += "Poll not yet closed"
+                output += "\n\n"
             print(output)
-        case 'dump-raw-object':
+        case "dump-raw-object":
             pprint.pprint(all_items)
-        case 'dump-base64-picked-object':
+        case "dump-base64-picked-object":
             print(base64.b64encode(gzip.compress(pickle.dumps(all_items))).decode())
-        case 'post-data-to-topic':
-            discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_data(all_items))
-        case 'post-winners-to-topic':
-            if filter(lambda x: time.time() > x['close_time'],all_items):
-                discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
+        case "post-data-to-topic":
+            discouse_connection.make_post(
+                args.topic_id, libs.discourse_helper.generate_post_data(all_items)
+            )
+        case "post-winners-to-topic":
+            if filter(lambda x: time.time() > x["close_time"], all_items):
+                discouse_connection.make_post(
+                    args.topic_id,
+                    libs.discourse_helper.generate_post_winners(all_items),
+                )
             else:
                 err("Can't run winners when poll is not yet closed.")
-                
+
+
 if __name__ == "__main__":
     main()
