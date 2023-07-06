@@ -158,9 +158,12 @@ def main():
                 output+="Entrants: \n"
                 for i,entrant in enumerate(item['entrants']):
                     output+=f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
-                output+="Winning Order: \n"
-                for i,entrant in enumerate(item['sorted_winner_list']):
-                    output+=f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
+                if poll_closed:
+                    output+="Winning Order: \n"
+                    for i,entrant in enumerate(item['sorted_winner_list']):
+                        output+=f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
+                else:
+                    output+="Poll not yet closed"
                 output+='\n\n'
             print(output)
         case 'dump-raw-object':
@@ -170,6 +173,10 @@ def main():
         case 'post-data-to-topic':
             discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_data(all_items))
         case 'post-winners-to-topic':
-            discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
+            if poll_closed:
+                discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
+            else:
+                err("Can't run winners when poll is not yet closed.")
+                
 if __name__ == "__main__":
     main()
