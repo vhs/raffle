@@ -133,10 +133,10 @@ def main():
                 str(entrant["id"]) + item["item_hash"].hex()
             )
 
-    poll_closed = time.time() > item["close_time"]
-    if poll_closed:
-        for item in all_items:
-            item["dice_roll_hash"] = libs.crypto_helper.get_dice_roll(item["close_time"])
+    for item in filter(lambda x: time.time() > x['close_time'],all_items):
+        if time.time() > item["close_time"]:
+            # We COULD mix the dice with the item, so each dice roll is different. Not changing now as this is live.
+            item["dice_roll_hash"] = libs.crypto_helper.get_dice_roll(item["close_time"]) 
             for entrant in item['entrants']:
                 entrant['user-item-dice-result'] = libs.crypto_helper.hash_xor(
                     entrant["user-item-hash"], item["dice_roll_hash"]
@@ -158,7 +158,7 @@ def main():
                 output+="Entrants: \n"
                 for i,entrant in enumerate(item['entrants']):
                     output+=f"{i+1}. {entrant['username']} - {entrant['user-item-hash'].hex()[:8]}...\n"
-                if poll_closed:
+                if time.time() > item['close_time']:
                     output+="Winning Order: \n"
                     for i,entrant in enumerate(item['sorted_winner_list']):
                         output+=f"{i+1}. {entrant['username']} - {entrant['user-item-dice-result'].hex()[:8]}...\n"
@@ -173,7 +173,7 @@ def main():
         case 'post-data-to-topic':
             discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_data(all_items))
         case 'post-winners-to-topic':
-            if poll_closed:
+            if filter(lambda x: time.time() > x['close_time'],all_items):
                 discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
             else:
                 err("Can't run winners when poll is not yet closed.")
