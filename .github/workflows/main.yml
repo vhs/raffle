@@ -27,5 +27,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run RaffleBot
+      env:
+          DISCORD_API_KEY: ${{ secrets.RAFFLE_API_KEY }}
       run: |
         python raffle.py ${{ inputs.action }} ${{ inputs.topicID }} --api-username rafflebot
