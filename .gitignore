@@ -1,6 +1,9 @@
 # PyCharm
 .idea
+# Any API keys
 api.key
+*.key*
+*apikey*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
