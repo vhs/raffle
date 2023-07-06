@@ -19,8 +19,6 @@ This tool can post winners directly to the topics, or dump various data output t
 git clone
 ```
 
-Note to Linux users: If you get a "No usable sandbox!" error, you need to enable [system sandboxing](https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#setting-up-chrome-linux-sandbox).
-
 ## Usage
 
 ```sh
