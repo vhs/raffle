@@ -28,4 +28,4 @@ jobs:
 
     - name: Run RaffleBot
       run: |
-        python raffle.py ${{ inputs.topicID }} ${{ inputs.action }} --api-username rafflebot
+        python raffle.py ${{ inputs.action }} ${{ inputs.topicID }} --api-username rafflebot
