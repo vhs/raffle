@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       topicID:
-        description: 'the ID from the URL of the post. EG: talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18 the ID is 11292'
+        description: 'The ID from the URL of the post. EG: talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18 the ID is 11292'
         required: true
         type: int
       action:
-        description: 'print-nice,dump-raw-object,dump-base64-picked-object,post-data-to-topic,post-winners-to-topic}'
+        description: '{print-nice,dump-raw-object,dump-base64-picked-object,post-data-to-topic,post-winners-to-topic}'
         required: true
         type: string
 
