@@ -8,6 +8,8 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN addgroup user && adduser user -G user -S
+USER user
 
+COPY . .
 CMD [ "python", "./raffle.py"]
