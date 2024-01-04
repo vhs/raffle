@@ -1,11 +1,20 @@
-# PyCharm
-.idea
-api.key
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-# C extensions
-*.so
-# Jupyter Notebook
-.ipynb_checkpoints
+*
+
+!.gitignore
+
+!.github/
+!.github/workflows/
+!.github/workflows/main.yml
+!.github/workflows/test_and_lint.yml
+!libs/
+!libs/crypto_helper.py
+!libs/discourse_helper.py
+
+!Dockerfile
+!README.md
+
+!functional_test.py
+
+!raffle.py
+
+!requirements.txt
