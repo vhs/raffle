@@ -29,6 +29,8 @@ def parse_args(parser):
             "dump-base64-picked-object",
             "post-data-to-topic",
             "post-winners-to-topic",
+            "print-data",
+            "print-winners",
         ],
         help="What action to take.",
     )
@@ -171,5 +173,10 @@ def main():
             discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_data(all_items))
         case 'post-winners-to-topic':
             discouse_connection.make_post(args.topic_id, libs.discourse_helper.generate_post_winners(all_items))
+        case 'print-data':
+            print(libs.discourse_helper.generate_post_data(all_items))
+        case 'print-winners':
+            print(libs.discourse_helper.generate_post_winners(all_items))
+
 if __name__ == "__main__":
     main()
