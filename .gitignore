@@ -6,15 +6,18 @@
 !.github/workflows/
 !.github/workflows/main.yml
 !.github/workflows/test_and_lint.yml
+
 !libs/
-!libs/crypto_helper.py
-!libs/discourse_helper.py
+!libs/*.py
+!functional_test.py
+!raffle.py
 
 !Dockerfile
 !README.md
 
-!functional_test.py
-
-!raffle.py
-
 !requirements.txt
+!requirements-dev.txt
+!requirements-test.txt
+
+
+!.editorconfig

@@ -1,4 +1,4 @@
-# We want requests fo all the calls to discord, and back up to bitcoin and NIST
+# We want requests for all the calls to discourse, and back up to bitcoin and NIST
 requests
 # We use this to talk to discourse
 pydiscourse
