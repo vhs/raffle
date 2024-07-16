@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       topicID:
-        description: 'the ID from the URL of the post. EG: talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18 the ID is 11292'
+        description: 'The numeric ID from the URL of the post. EG: talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18 the ID is 11292'
         required: true
-        type: int
+        type: number
       action:
-        description: 'print-nice,dump-raw-object,dump-base64-picked-object,post-data-to-topic,post-winners-to-topic}'
+        description: 'print-nice, dump-raw-object, dump-base64-picked-object, post-data-to-topic, post-winners-to-topic'
         required: true
         type: string
 
@@ -16,18 +16,20 @@ jobs:
   rafflebot-run:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.11"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - uses: actions/checkout@v3
 
-    - name: Run RaffleBot
-      env:
-          DISCORD_API_KEY: ${{ secrets.RAFFLE_API_KEY }}
-      run: |
-        python raffle.py ${{ inputs.action }} ${{ inputs.topicID }} --api-username rafflebot
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run RaffleBot
+        env:
+          DISCOURSE_API_KEY: ${{ secrets.RAFFLE_API_KEY }}
+        run: |
+          python raffle.py ${{ inputs.action }} ${{ inputs.topicID }} --api-username rafflebot
