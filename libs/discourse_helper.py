@@ -24,15 +24,24 @@ def generate_post_winners(all_items: list) -> str:
     post += "<h1>Raffle Results</h1>\n\n"
 
     for item in all_items:
-        post += f"**{item['description']}**\n\n"
+        post += f"**{item['description']}**\n"
+
+        post += "\nWinners:\n"
 
         for i, entrant in enumerate(item["sorted_winner_list"]):
-            post += str(i + 1)
-            post += ". "
-            post += entrant["username"]
-            post += " - "
-            post += entrant["user-item-dice-result"].hex()[:8]
-            post += "...\n"
+            if i < item["winners_count"]:
+                post += generate_entry(i + 1, entrant, True)
+            else:
+                continue
+
+        if len(item["sorted_winner_list"]) >= item["winners_count"]:
+            post += '\n[details="Runner-ups"]\n'
+
+            for i, entrant in enumerate(item["sorted_winner_list"]):
+                if i >= item["winners_count"]:
+                    post += generate_entry(i + 1, entrant, False)
+
+            post += "[/details]\n"
 
         post += "\n"
 
@@ -54,6 +63,21 @@ def generate_post_data(all_items: list) -> str:
     post += "`\n[/details]"
 
     return post
+
+
+def generate_entry(idx: int, entrant: dict, tagged: bool) -> str:
+    output = ""
+
+    output += str(idx)
+    output += ". "
+    if tagged:
+        output += "@"
+    output += entrant["username"]
+    output += " - "
+    output += entrant["user-item-dice-result"].hex()[:8]
+    output += "...\n"
+
+    return output
 
 
 class DiscourseConnection:

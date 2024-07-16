@@ -8,10 +8,12 @@ import pprint
 import time
 from base64 import b64encode
 from gzip import compress
+import re
 
 from libs.crypto_helper import get_dice_roll, get_hash, hash_xor
 from libs.discourse_helper import (
     DiscourseConnection,
+    generate_entry,
     generate_post_data,
     generate_post_winners,
 )
@@ -25,6 +27,8 @@ info = logger.info
 warn = logger.warn
 err = logger.error
 
+description_re = "^((\d+) [x*] )?\w+.+"
+
 
 def parse_args(parser):
     parser.add_argument(
@@ -36,8 +40,8 @@ def parse_args(parser):
             "dump-base64-picked-object",
             "post-data-to-topic",
             "post-winners-to-topic",
-            "print-data",
-            "print-winners",
+            "print-raw-data-post",
+            "print-raw-winners-post",
         ],
         help="What action to take.",
     )
@@ -167,6 +171,13 @@ def main():
         for item in all_items:
             item["dice_roll_hash"] = get_dice_roll(item["close_time"])
 
+            description_match = re.split(description_re, item["description"])
+
+            item["winners_count"] = 1
+
+            if description_match[2] is not None:
+                item["winners_count"] = int(description_match[2])
+
             for entrant in item["entrants"]:
                 entrant["user-item-dice-result"] = hash_xor(
                     entrant["user-item-hash"], item["dice_roll_hash"]
@@ -198,25 +209,25 @@ def main():
 
             for item in all_items:
                 output += f"**{item['description']}**\n\n"
-                output += "Entrants: \n"
+                output += "Entrants:\n"
 
                 for i, entrant in enumerate(item["entrants"]):
-                    output += str(i + 1)
-                    output += ". "
-                    output += entrant["username"]
-                    output += " - "
-                    output += entrant["user-item-hash"].hex()[:8]
-                    output += "...\n"
+                    output += generate_entry(i + 1, entrant, False)
 
-                output += "\nWinning Order: \n"
+                output += "\nWinners:\n"
 
                 for i, entrant in enumerate(item["sorted_winner_list"]):
-                    output += str(i + 1)
-                    output += ". "
-                    output += entrant["username"]
-                    output += " - "
-                    output += entrant["user-item-dice-result"].hex()[:8]
-                    output += "...\n"
+                    if i < item["winners_count"]:
+                        output += generate_entry(i + 1, entrant, True)
+                    else:
+                        continue
+
+                if len(item["sorted_winner_list"]) >= item["winners_count"]:
+                    output += "\nRunner-ups:\n"
+
+                    for i, entrant in enumerate(item["sorted_winner_list"]):
+                        if i >= item["winners_count"]:
+                            output += generate_entry(i + 1, entrant, False)
 
                 output += "\n"
 
