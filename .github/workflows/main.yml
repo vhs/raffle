@@ -8,7 +8,7 @@ on:
         required: true
         type: number
       action:
-        description: 'print-nice, dump-raw-object, dump-base64-picked-object, post-data-to-topic, post-winners-to-topic'
+        description: 'print-nice, dump-raw-object, dump-base64-picked-object, post-data-to-topic, post-winners-to-topic, print-raw-data-post, print-raw-winners-post'
         required: true
         type: string
 
