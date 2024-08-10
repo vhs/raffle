@@ -130,7 +130,7 @@ class DiscourseConnection:
         # TODO: Make this cooler/cleaner for pagination and the actual request
         return results
 
-    def get_all_polls(self, post_id: int, close_time_override=None) -> list:
+    def get_all_polls(self, post_id: int, close_time_override: datetime = None) -> list:
         assert isinstance(post_id, int)
 
         topic = self._discource_client.topic_posts(str(post_id))
@@ -150,7 +150,8 @@ class DiscourseConnection:
                     winnable_item["id"] = item["id"]
 
                     if close_time_override:
-                        winnable_item["close_time"] = close_time_override
+                        winnable_item["close_time"] = int(
+                            close_time_override.timestamp())
                     else:
                         try:
                             winnable_item["close_time"] = int(
