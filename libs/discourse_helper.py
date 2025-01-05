@@ -3,6 +3,9 @@ import gzip
 import logging
 import pickle
 from datetime import datetime
+import zoneinfo
+
+vancouver_timezone = zoneinfo.ZoneInfo("America/Vancouver")
 
 from pydiscourse import DiscourseClient
 
@@ -23,7 +26,22 @@ def generate_post_winners(all_items: list) -> str:
 
     post += "<h1>Raffle Results</h1>\n\n"
 
+    last_close_time = None
+
     for item in all_items:
+
+        # Technically each poll could have a different close time.
+        # This handles that by printing it once at the beginning, and
+        # again each time we get to a new poll where it differs from the last.
+        if last_close_time != item["close_time"]:
+            ts = datetime.fromtimestamp(
+                item["close_time"], tz=vancouver_timezone)
+            post += "Raffle was closed at: {} ({})\n\n".format(
+                ts.isoformat(),
+                item["close_time"],
+            )
+            last_close_time = item["close_time"]
+
         post += f"**{item['description']}**\n"
 
         post += "\nWinners:\n"
