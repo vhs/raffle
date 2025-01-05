@@ -92,26 +92,8 @@ class DiscourseConnection:
     def get_all_voters(self, post_id, poll_name, option_id):
         results = []
 
-        i = 1
-
-        # Hacky way to get voters directly
-        page = self._discource_client._request(
-            "GET",
-            "/polls/voters.json",
-            params={
-                "post_id": post_id,
-                "poll_name": poll_name,
-                "option_id": option_id,
-                "page": i,
-            },
-        )["voters"][option_id]
-
-        results += page
-
-        i += 1
-
-        while len(page) != 0:
-            page = self._discource_client._request(
+        for i in range(1, 11):
+            r = self._discource_client._request(
                 "GET",
                 "/polls/voters.json",
                 params={
@@ -120,15 +102,15 @@ class DiscourseConnection:
                     "option_id": option_id,
                     "page": i,
                 },
-            )["voters"][option_id]
+            )
 
-            results += page
+            # No more pages; we're done.
+            if r["voters"] is None:
+                return results
 
-            i += 1
+            results += r["voters"][option_id]
 
-        # Ugh that (^^^) was a lame way of doing this, I was tired,
-        # TODO: Make this cooler/cleaner for pagination and the actual request
-        return results
+        raise Exception("Received too many pages of voters")
 
     def get_all_polls(self, post_id: int, close_time_override=None) -> list:
         assert isinstance(post_id, int)
