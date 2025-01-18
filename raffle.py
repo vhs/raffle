@@ -9,6 +9,7 @@ import time
 from base64 import b64encode
 from gzip import compress
 import re
+from datetime import datetime
 
 from libs.crypto_helper import get_dice_roll, get_hash, hash_xor
 from libs.discourse_helper import (
@@ -67,9 +68,9 @@ def parse_args(parser):
     )
     parser.add_argument(
         "--close_time_override",
-        type=int,
+        type=datetime.fromisoformat,
         action="store",
-        help="override the time the poll closes.",
+        help="override the time the poll closes (e.g.: 2024-08-10 00:00:00-07:00)",
     )
     parser.add_argument(
         "--api-key",
@@ -150,7 +151,8 @@ def main():
         "Hitting discourse topic to find some polls."
         + " It can take a bit if there are a lot of polls."
     )
-    all_items = discourse_connection.get_all_polls(args.topic_id)
+    all_items = discourse_connection.get_all_polls(
+        args.topic_id, close_time_override=args.close_time_override)
     info("Got %s polls from topic" % len(all_items))
 
     # Add in the crypto parts to the results we got from Discourse
