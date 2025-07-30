@@ -124,7 +124,7 @@ class DiscourseConnection:
 
             # No more pages; we're done.
             if r["voters"] is None:
-                # Need to do a quick simple de-dupe due to a bug in the pagination from Discord
+                # Need to do a quick simple de-dupe due to a bug in the pagination from Discourse
                 deduped_list=[]
                 for user in results:
                     if user not in deduped_list:  
