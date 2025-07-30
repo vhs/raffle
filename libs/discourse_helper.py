@@ -124,7 +124,12 @@ class DiscourseConnection:
 
             # No more pages; we're done.
             if r["voters"] is None:
-                return results
+                # Need to do a quick simple de-dupe due to a bug in the pagination from Discourse
+                deduped_list=[]
+                for user in results:
+                    if user not in deduped_list:  
+                        deduped_list.append(user) 
+                return deduped_list
 
             results += r["voters"][option_id]
 
