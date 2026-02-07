@@ -28,7 +28,7 @@ info = logger.info
 warn = logger.warn
 err = logger.error
 
-description_re = "^((\d+) ?[x*] )?<?\w+.+"
+description_re = r"^((\d+) ?[xX*] )?<?\w+.+"
 
 
 def parse_args(parser):

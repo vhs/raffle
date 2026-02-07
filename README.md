@@ -23,4 +23,9 @@ To run the RaffleBot as a github action, you need:
 2. the raffle post's topicID - e.g. talk.vanhack.ca/t/raffle-welcome-to-2021/11292/18 the ID is 11292
 3. an action `print-nice`, `dump-raw-object`, `dump-base64-picked-object`, `post-data-to-topic`, `post-winners-to-topic`, `print-raw-data-post`, or  `print-raw-winners-post`
 
-To run the rafflebot locally, you need a everything above, plus a discourse api key.
+To run the rafflebot locally, you need everything above, plus a discourse api key.
+
+Example:
+```bash
+python raffle.py print-nice 11292 --api-key <YOUR_API_KEY>
+```
