@@ -101,7 +101,7 @@ def parse_args(parser):
 def main():
     parser = argparse.ArgumentParser(
         description="Run raffels for VHS on the Discourse forums."
-        + " Randomness is provided from Bitcoin and NIST"
+        + " Randomness is provided from Bitcoin and Drand"
     )
     args = parse_args(parser)
 
