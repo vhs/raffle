@@ -3,7 +3,6 @@ import logging
 import time
 from functools import cache
 
-import dateutil.parser
 import requests
 
 logger = logging.getLogger()
@@ -29,31 +28,48 @@ def hash_xor(hash_1, hash_2):
     return bytes([a ^ b for a, b in zip(hash_1, hash_2)])
 
 
+# Drand configuration (League of Entropy mainnet - default network)
+DRAND_API_URL = "https://api.drand.sh"
+DRAND_PERIOD = 30  # seconds between rounds
+DRAND_GENESIS_TIME = 1595431050  # July 21, 2020 14:37:30 UTC
+# Genesis time fetched from https://api.drand.sh/info
+
+
+def _get_drand_round(timestamp):
+    """Convert a UNIX timestamp to the corresponding Drand round number."""
+    return int((timestamp - DRAND_GENESIS_TIME) // DRAND_PERIOD)
+
+
 # Cache decorator to force python to cache calls to remote service
 @cache
-def get_nist_hash(timestamp):
-    timestamp_ms = timestamp * 1000
-    nist_url = f"https://beacon.nist.gov/beacon/2.0/pulse/time/{timestamp_ms}"
+def get_drand_hash(timestamp):
+    """Get the most recent Drand beacon round published after the given timestamp.
 
-    deb("Getting NIST hash, url: %s" % nist_url)
+    Returns dict with 'hash' (bytes) and 'timestamp' (int UNIX epoch).
+    """
+    target_round = _get_drand_round(timestamp)
+    # Fetch the NEXT round so the timestamp is guaranteed to be >= timestamp
+    fetch_round = target_round + 1
+    deb("Getting Drand hash, round: %s" % fetch_round)
 
     try:
-        pulse = requests.get(
-            nist_url,
+        resp = requests.get(
+            f"{DRAND_API_URL}/public/{fetch_round}",
             timeout=5,
-        ).json()
+        )
+        resp.raise_for_status()
+        beacon = resp.json()
     except:
-        err("NIST Pulse get error")
-
+        err("Drand get error")
         raise
 
-    deb("Chosen NIST: %s" % pulse)
+    deb("Chosen Drand: %s" % beacon)
 
-    pulse_output = bytes.fromhex(pulse["pulse"]["outputValue"])
-    pulse_timestamp = pulse["pulse"]["timeStamp"]
-    parsed_timestamp = dateutil.parser.isoparse(pulse_timestamp).timestamp()
+    beacon_round = beacon["round"]
+    randomness = bytes.fromhex(beacon["randomness"])
+    beacon_timestamp = DRAND_GENESIS_TIME + (beacon_round * DRAND_PERIOD)
 
-    return {"hash": pulse_output, "timestamp": int(parsed_timestamp)}
+    return {"hash": randomness, "timestamp": beacon_timestamp}
 
 
 # Cache decorator to force python to cache calls to remote service
@@ -94,22 +110,22 @@ def get_bitcoin_hash(timestamp):
 @cache
 def get_dice_roll(close_time):
     bitcoin = get_bitcoin_hash(close_time)
-    nist = get_nist_hash(close_time)
+    drand = get_drand_hash(close_time)
 
     info("Bitcoin Timestamp: %s" % time.ctime(bitcoin["timestamp"]))
     info("Provided Timestamp: %s" % time.ctime(close_time))
-    info("NIST Timestamp: %s" % time.ctime(nist["timestamp"]))
+    info("Drand Timestamp: %s" % time.ctime(drand["timestamp"]))
 
     # Check that the timestamps are in the right order:
-    # Bitcoin, close time, NIST
-    assert bitcoin["timestamp"] <= close_time <= nist["timestamp"]
+    # Bitcoin, close time, Drand
+    assert bitcoin["timestamp"] <= close_time <= drand["timestamp"]
 
     # Check that the whole range is within 30 mins.
-    assert nist["timestamp"] - bitcoin["timestamp"] <= 3600
+    assert drand["timestamp"] - bitcoin["timestamp"] <= 3600
 
     deb(
-        "Time delta between two randomeness: %s"
-        % (nist["timestamp"] - bitcoin["timestamp"])
+        "Time delta between two randomness: %s"
+        % (drand["timestamp"] - bitcoin["timestamp"])
     )
 
-    return get_hash(bitcoin["hash"].hex() + nist["hash"].hex())
+    return get_hash(bitcoin["hash"].hex() + drand["hash"].hex())
