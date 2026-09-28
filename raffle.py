@@ -29,7 +29,7 @@ warn = logger.warn
 err = logger.error
 
 description_re = r"^((\d+) ?[xX*] )?<?\w+.+"
-
+detag_re = r"<.*?>"
 
 def parse_args(parser):
     parser.add_argument(
@@ -173,7 +173,9 @@ def main():
         for item in all_items:
             item["dice_roll_hash"] = get_dice_roll(item["close_time"])
 
-            description_match = re.split(description_re, item["description"])
+            detagged_description = re.sub(r"<.*?>", '', item["description"])
+
+            description_match = re.split(description_re, detagged_description)
 
             item["winners_count"] = 1
 
